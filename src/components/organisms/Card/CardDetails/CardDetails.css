@@ -1,0 +1,87 @@
+.container {
+    padding: 1rem;
+}
+
+/* .card__top, */
+.title__edit,
+.label__edit,
+.task__list {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.card__action__btn>button {
+    background-color: var(--task-hover);
+    color: var(--text-color);
+    border: none;
+    font-size: 15px;
+    border-radius: 3px;
+    box-sizing: border-box;
+    cursor: pointer;
+    display: flex;
+    height: 32px;
+    margin-top: 8px;
+    max-width: 300px;
+    overflow: hidden;
+    padding: 6px 12px;
+    position: relative;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    transition-duration: 85ms;
+    transition-property: background-color, border-color, box-shadow;
+    transition-timing-function: ease;
+    -webkit-user-select: none;
+    user-select: none;
+    white-space: nowrap;
+    justify-content: start;
+    align-items: center;
+    gap: 5px;
+}
+
+.card__action__btn>button:hover {
+    background-color: var(--task-hover);
+    border: none;
+}
+
+.icon__sm>svg {
+    height: 15px;
+    width: 15px;
+}
+
+.icon__sm {
+    height: 15px;
+    width: 15px;
+}
+
+/* .task__editable {
+    width: 30%;
+} */
+
+.task__list:hover {
+    background-color: var(--task-hover);
+}
+
+.task__checkbox {
+    height: 18px !important;
+    width: 18px !important;
+    cursor: pointer;
+}
+
+.text__date,
+.text__check {
+    margin-top: 1rem;
+}
+
+.strike-through {
+    text-decoration: line-through;
+}
+
+.but__rem {
+    margin: 10px;
+}
+
+.but__group {
+    display: flex;
+    align-items: baseline;
+}

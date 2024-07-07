@@ -1,0 +1,29 @@
+.board {
+    background-color: #f2f2f2;
+    padding: 1rem;
+    margin: 1rem;
+    border-radius: 1rem;
+    width: 200px;
+
+    .board__footer {
+        display: flex;
+        align-content: center;
+        flex-wrap: wrap;
+        flex-direction: column;
+
+    }
+
+    .board__cards {
+        min-height: 3rem;
+    }
+
+    .board__top {
+        justify-content: space-around;
+        display: flex;
+        align-items: center;
+    }
+
+    .text {
+        margin: 0;
+    }
+}

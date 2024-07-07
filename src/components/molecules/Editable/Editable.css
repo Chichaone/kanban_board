@@ -1,0 +1,13 @@
+.but__add {
+        margin: 10px;
+}
+
+.modal {
+        padding: 1rem;
+        width: 490px;
+}
+
+.color__group {
+        display: inline-flex;
+        margin-top: 1rem;
+}
