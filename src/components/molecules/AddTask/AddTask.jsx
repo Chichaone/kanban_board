@@ -5,34 +5,32 @@ import { Button } from '@consta/uikit/Button';
 import { Modal } from '@consta/uikit/Modal';
 import { TextField } from '@consta/uikit/TextField';
 
-
-const AddTask = (props) =>
+const AddTask = ({ onSubmit }) =>
 {
     const [show, setShow] = useState(false);
     const [title, setTitle] = useState("");
 
-    const onChangeSetShow = (val) => setShow(val)
+    const handleSetShow = (value) => setShow(value);
+    const handleTitleChange = (value) => setTitle(value);
 
     const handleOnSubmit = (e) =>
     {
         e.preventDefault();
-
-        if (title && props.onSubmit)
+        if (title && onSubmit)
         {
-            props.onSubmit(title);
+            onSubmit(title);
             setTitle("");
         }
-        onChangeSetShow(false);
+        handleSetShow(false);
     };
-
 
     return (
         <>
             <Modal
                 isOpen={show}
                 hasOverlay
-                onClickOutside={() => onChangeSetShow(false)}
-                onEsc={() => onChangeSetShow(false)}
+                onClickOutside={() => handleSetShow(false)}
+                onEsc={() => handleSetShow(false)}
             >
                 <div className="modal__task">
                     <TextField
@@ -43,12 +41,12 @@ const AddTask = (props) =>
                         autoFocus
                         type="textarea"
                         value={title}
-                        onChange={(value) => setTitle(value)}
+                        onChange={handleTitleChange}
                         maxLength={255}
                     />
                     <Button
                         className="but__add"
-                        label={"Добавить"}
+                        label="Добавить"
                         form="round"
                         view="ghost"
                         size="s"
@@ -62,11 +60,10 @@ const AddTask = (props) =>
                 view="ghost"
                 size="s"
                 label="Добавить задачу"
-                onClick={() => onChangeSetShow(true)}
+                onClick={() => handleSetShow(true)}
             />
         </>
     );
 };
 
 export default AddTask;
-

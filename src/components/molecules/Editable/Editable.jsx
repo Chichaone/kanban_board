@@ -1,28 +1,28 @@
 import "./Editable.css";
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Button } from '@consta/uikit/Button';
 import { Modal } from '@consta/uikit/Modal';
 import { Text } from '@consta/uikit/Text';
 import { TextField } from '@consta/uikit/TextField';
 
-const Editable = (props) =>
+const Editable = ({ handler = false, placeholder, name = "Add", onSubmit }) =>
 {
-    const [show, setShow] = useState(props?.handler || false);
+    const [show, setShow] = useState(handler);
     const [text, setText] = useState("");
-    const [color, setColor] = useState("#000000"); // Default color
+    const [color, setColor] = useState("#000000");
 
-    const handleOnSubmit = (e) =>
+    const handleOnSubmit = useCallback((e) =>
     {
         e.preventDefault();
-        if (text && color && props.onSubmit)
+        if (text && color && onSubmit)
         {
+            onSubmit({ text, color });
             setText("");
-            setColor("#000000"); // Reset to default color
-            props.onSubmit({ text, color });
+            setColor("#000000");
         }
         setShow(false);
-    };
+    }, [text, color, onSubmit]);
 
     return (
         <>
@@ -37,13 +37,13 @@ const Editable = (props) =>
                         Заполните все поля
                     </Text>
                     <TextField
-                        label={props.placeholder}
+                        label={placeholder}
                         placeholder="Введите текст"
                         autoFocus
                         form="round"
                         type="text"
-                        value={text || ""}
-                        onChange={( value ) => setText(value)}
+                        value={text}
+                        onChange={(value) => setText(value)}
                     />
                     <div className="color__group">
                         <TextField
@@ -71,7 +71,7 @@ const Editable = (props) =>
                 form="round"
                 view="ghost"
                 size="s"
-                label={props?.name || "Add"}
+                label={name}
                 onClick={() => setShow(true)}
             />
         </>

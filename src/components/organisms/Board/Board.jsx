@@ -7,8 +7,6 @@ import { Button } from '@consta/uikit/Button';
 import { Text } from '@consta/uikit/Text';
 import { IconTrash } from '@consta/icons/IconTrash';
 
-
-
 export default function Board({
     id,
     name = "Name of Board",
@@ -22,32 +20,35 @@ export default function Board({
 })
 {
 
+    const handleRemoveBoard = () => removeBoard(id);
+    const handleAddCard = (title, description, status, endDate, selectedBoard) =>
+    {
+        addCard(title, description, status, endDate, selectedBoard, id);
+    };
+
     return (
-        <div className="board"
-            style={{ border: `2px solid ${color}` }}>
+        <div className="board" style={{ border: `2px solid ${color}` }}>
             <div className="board__top">
-                <Text
-                    className="text"
-                    truncate>
+                <Text className="text" truncate>
                     {name}
                 </Text>
                 <Button
-                    label={"Удалить стадию"}
+                    label="Удалить стадию"
                     iconRight={IconTrash}
                     onlyIcon
                     view="clear"
                     size="s"
-                    onClick={() => removeBoard(id)}
+                    onClick={handleRemoveBoard}
                 />
             </div>
             <div className="board__footer">
                 <AddCard
-                    name={"Добавить задачу"}
-                    btnName={"AddCardIn"}
-                    placeholder={"Введите название задачи"}
+                    name="Добавить задачу"
+                    btnName="AddCardIn"
+                    placeholder="Введите название задачи"
                     id={id}
                     nameBoard={name}
-                    onSubmit={addCard}
+                    onSubmit={handleAddCard}
                 />
             </div>
             <Droppable droppableId={id.toString()} type="card">

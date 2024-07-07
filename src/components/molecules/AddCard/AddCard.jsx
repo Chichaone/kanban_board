@@ -1,6 +1,6 @@
 import "./AddCard.css";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Button } from '@consta/uikit/Button';
 import { Modal } from '@consta/uikit/Modal';
 import { Text } from '@consta/uikit/Text';
@@ -9,11 +9,12 @@ import { DatePicker } from '@consta/uikit/DatePicker';
 import { Select } from '@consta/uikit/Select';
 import { format } from 'date-fns';
 
+
 const statusOptions = [
-    { label: "новое", value: "новое" },
-    { label: "в работе", value: "в работе" },
-    { label: "на проверке", value: "на проверке" },
-    { label: "завершен", value: "завершен" },
+    { id: "новое", label: "новое" },
+    { id: "в работе", label: "в работе" },
+    { id: "на проверке", label: "на проверке" },
+    { id: "завершен", label: "завершен" },
 ];
 
 const AddCard = (props) =>
@@ -34,14 +35,13 @@ const AddCard = (props) =>
         }
     }, [props.btnName, props.id]);
 
-    const handleOnSubmit = (e) =>
+    const handleOnSubmit = useCallback((e) =>
     {
         e.preventDefault();
-
         if (title && description && statusTask && endDate && props.onSubmit)
         {
             const formattedDate = format(endDate, 'dd/MM/yyyy');
-            props.onSubmit(title, description, statusTask, formattedDate, selectedBoard, bId);
+            props.onSubmit(title, description, statusTask.label, formattedDate, selectedBoard, bId);
             setTitle("");
             setDescription("");
             setStatusTask("");
@@ -49,8 +49,7 @@ const AddCard = (props) =>
             setSelectedBoard("");
         }
         setShow(false);
-    };
-
+    }, [title, description, statusTask, endDate, selectedBoard, bId, props]);
 
     return (
         <>
@@ -64,8 +63,7 @@ const AddCard = (props) =>
                     <Text as="p" size="l" view="secondary" lineHeight="m">
                         Заполните все поля
                     </Text>
-                    
-                    {props.btnName == 'AddCard' ?
+                    {props.btnName === 'AddCard' ? (
                         <Select
                             className="input"
                             label="Выберите стадию"
@@ -77,15 +75,15 @@ const AddCard = (props) =>
                             value={selectedBoard}
                             onChange={setSelectedBoard}
                         />
-                        :
+                    ) : (
                         <TextField
-                            label="Cтадия"
+                            label="Стадия"
                             className="input"
                             placeholder={props.nameBoard}
                             form="round"
                             disabled
                         />
-                    }
+                    )}
                     <TextField
                         className="input"
                         label="Введите заголовок"
@@ -94,7 +92,7 @@ const AddCard = (props) =>
                         autoFocus
                         type="textarea"
                         value={title}
-                        onChange={(value)=>setTitle(value)}
+                        onChange={(value) => setTitle(value)}
                         maxLength={255}
                     />
                     <TextField
@@ -121,10 +119,10 @@ const AddCard = (props) =>
                         label="Выберите дату завершения"
                         form="round"
                         value={endDate}
-                        onChange={(endDate) => setEndDate(endDate)}
+                        onChange={setEndDate}
                     />
                     <Button
-                        label={"Добавить"}
+                        label="Добавить"
                         form="round"
                         view="ghost"
                         size="s"
@@ -145,4 +143,3 @@ const AddCard = (props) =>
 };
 
 export default AddCard;
-

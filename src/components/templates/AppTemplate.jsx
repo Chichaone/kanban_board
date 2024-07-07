@@ -1,11 +1,10 @@
 import './AppTemplate.css';
 
-import React from 'react';
+import React, { useCallback } from 'react';
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import Board from '../organisms/Board/Board';
 import Editable from '../molecules/Editable/Editable';
 import AddCard from '../molecules/AddCard/AddCard';
-
 
 const AppTemplate = ({
     data,
@@ -19,6 +18,12 @@ const AppTemplate = ({
     toggleTaskCompletion
 }) =>
 {
+    const handleAddBoard = useCallback((name) => addBoard(name), [addBoard]);
+    const handleAddCard = useCallback((title, description, status, endDate, selectedBoard) =>
+    {
+        addCard(title, description, status, endDate, selectedBoard);
+    }, [addCard]);
+
     return (
         <div className="app">
             <div className="app__header">
@@ -28,15 +33,15 @@ const AppTemplate = ({
                         className="add__board"
                         name="Добавить стадию"
                         btnName="Add Board"
-                        onSubmit={addBoard}
+                        onSubmit={handleAddBoard}
                         placeholder="Введите название стадии"
                     />
                     <AddCard
-                        name={"Добавить задачу"}
-                        btnName={"AddCard"}
-                        placeholder={"Введите название задачи"}
+                        name="Добавить задачу"
+                        btnName="AddCard"
+                        placeholder="Введите название задачи"
                         value={data}
-                        onSubmit={addCard}
+                        onSubmit={handleAddCard}
                     />
                 </div>
             </div>
@@ -53,7 +58,6 @@ const AppTemplate = ({
                                             {...provided.dragHandleProps}
                                         >
                                             <Board
-                                                key={item.id}
                                                 id={item.id}
                                                 name={item.boardName}
                                                 color={item.color}

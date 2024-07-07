@@ -1,14 +1,21 @@
 import './HomePage.css';
 
-import React from 'react';
-import useLocalStorage from 'use-local-storage';
+import React, { useCallback } from 'react';
 import AppTemplate from '../templates/AppTemplate';
 import { v4 as uuidv4 } from "uuid";
+import { useLocalStorage } from 'usehooks-ts';
 
 
 const HomePage = () =>
 {
     const [data, setData] = useLocalStorage("kanban-board", []);
+
+    const statusOptions = [
+        { id: "новое", label: "новое" },
+        { id: "в работе", label: "в работе" },
+        { id: "на проверке", label: "на проверке" },
+        { id: "завершен", label: "завершен" },
+    ];
 
     const setName = (title, bid) =>
     {
@@ -21,38 +28,26 @@ const HomePage = () =>
         });
     };
 
-    const dragCardInBoard = (source, destination) =>
+    const dragCardInBoard = useCallback((source, destination) =>
     {
         setData(prevData =>
         {
             const tempData = [...prevData];
-            const destinationBoardIdx = tempData.findIndex(
-                (item) => item.id.toString() === destination.droppableId
-            );
-            const sourceBoardIdx = tempData.findIndex(
-                (item) => item.id.toString() === source.droppableId
-            );
+            const sourceBoardIdx = tempData.findIndex(item => item.id.toString() === source.droppableId);
+            const destinationBoardIdx = tempData.findIndex(item => item.id.toString() === destination.droppableId);
 
             const [movedCard] = tempData[sourceBoardIdx].card.splice(source.index, 1);
             tempData[destinationBoardIdx].card.splice(destination.index, 0, movedCard);
 
             return tempData;
         });
-    };
+    }, [setData]);
 
-    const addCard = (title, description, status_task, endDate, boardId, bid) =>
+    const addCard = useCallback((title, description, status_task, endDate, boardId, bid) =>
     {
         setData(prevData =>
         {
-            let index;
-            if (boardId.id)
-            {
-                index = prevData.findIndex((item) => item.id == boardId.id);
-            } else
-            {
-                index = prevData.findIndex((item) => item.id == bid);
-            }
-
+            const index = prevData.findIndex(item => item.id === (boardId.id || bid));
             if (index === -1)
             {
                 console.error(`Board with id ${boardId?.id || bid} not found`);
@@ -60,45 +55,43 @@ const HomePage = () =>
             }
 
             const tempData = [...prevData];
-            if (!tempData[index].card)
-            {
-                tempData[index].card = [];
-            }
             tempData[index].card.push({
                 id: uuidv4(),
-                title: title,
-                description: description,
-                status_task: status_task,
-                endDate: endDate,
+                title,
+                description,
+                status_task,
+                endDate,
                 tags: [],
                 task: [],
             });
+
             return tempData;
         });
-    };
+    }, [setData]);
 
-    const removeCard = (boardId, cardId) =>
+    const removeCard = useCallback((boardId, cardId) =>
     {
         setData(prevData =>
         {
-            const index = prevData.findIndex((item) => item.id === boardId);
             const tempData = [...prevData];
-            const cardIndex = prevData[index].card.findIndex((item) => item.id === cardId);
-            tempData[index].card.splice(cardIndex, 1);
+            const boardIndex = tempData.findIndex(item => item.id === boardId);
+            tempData[boardIndex].card = tempData[boardIndex].card.filter(item => item.id !== cardId);
+
             return tempData;
         });
-    };
+    }, [setData]);
 
-    const dragBoard = (source, destination) =>
+    const dragBoard = useCallback((source, destination) =>
     {
         setData(prevData =>
         {
             const tempData = [...prevData];
             const [movedBoard] = tempData.splice(source.index, 1);
             tempData.splice(destination.index, 0, movedBoard);
+
             return tempData;
         });
-    };
+    }, [setData]);
 
     const addBoard = ({ text, color }) =>
     {
@@ -115,7 +108,7 @@ const HomePage = () =>
         setData(prevData => prevData.filter(item => item.id !== bid));
     };
 
-    const onDragEnd = (result) =>
+    const onDragEnd = useCallback((result) =>
     {
         const { source, destination, type } = result;
         if (!destination) return;
@@ -132,33 +125,22 @@ const HomePage = () =>
         {
             dragCardInBoard(source, destination);
         }
-    };
+    }, [dragBoard, dragCardInBoard]);
 
-    const updateCard = (bid, cid, updatedCard) =>
+    const updateCard = useCallback((bid, cid, updatedCard) =>
     {
         setData(prevData =>
         {
-            const index = prevData.findIndex((item) => item.id === bid);
-            if (index < 0) return prevData;
-
+            const boardIndex = prevData.findIndex(item => item.id === bid);
             const tempBoards = [...prevData];
-            const cards = tempBoards[index].card;
-            const cardIndex = cards.findIndex((item) => item.id === cid);
-            if (cardIndex < 0) return prevData;
+            const cardIndex = tempBoards[boardIndex].card.findIndex(item => item.id === cid);
+            tempBoards[boardIndex].card[cardIndex] = updatedCard;
 
-            tempBoards[index].card[cardIndex] = updatedCard;
             return tempBoards;
         });
-    };
+    }, [setData]);
 
-    const statusOptions = [
-        { label: "новое", value: "новое" },
-        { label: "в работе", value: "в работе" },
-        { label: "на проверке", value: "на проверке" },
-        { label: "завершен", value: "завершен" },
-    ];
-
-    const toggleTaskCompletion = (bid, cid) =>
+    const toggleTaskCompletion = useCallback((bid, cid) =>
     {
         setData(prevData =>
         {
@@ -168,19 +150,14 @@ const HomePage = () =>
 
             if (cardIndex >= 0)
             {
-                tempData[boardIndex].card[cardIndex].completed = !tempData[boardIndex].card[cardIndex].completed;
-                if (tempData[boardIndex].card[cardIndex].completed)
-                {
-                    tempData[boardIndex].card[cardIndex].status_task = statusOptions.find(option => option.value === "завершен").value;
-                } else
-                {
-                    tempData[boardIndex].card[cardIndex].status_task = statusOptions.find(option => option.value === "в работе").value; // Укажите статус для незавершенных задач, если необходимо
-                }
+                const card = tempData[boardIndex].card[cardIndex];
+                card.completed = !card.completed;
+                card.status_task = card.completed ? "завершен" : "в работе";
             }
 
             return tempData;
         });
-    };
+    }, [setData, statusOptions]);
 
     return (
         <AppTemplate

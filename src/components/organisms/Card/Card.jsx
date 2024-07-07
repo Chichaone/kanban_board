@@ -1,6 +1,6 @@
 import "./Card.css";
 
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import CardDetails from "./CardDetails/CardDetails";
 import { Draggable } from "react-beautiful-dnd";
 import { Modal } from '@consta/uikit/Modal';
@@ -9,65 +9,33 @@ import { Checkbox } from '@consta/uikit/Checkbox';
 import { IconOpenInNew } from '@consta/icons/IconOpenInNew';
 
 
-const Card = (props) =>
+const Card = ({ id, index, card, bid, title, toggleTaskCompletion, updateCard, removeCard }) =>
 {
     const [modalShow, setModalShow] = useState(false);
 
-    const handleCheckboxChange = () => props.toggleTaskCompletion(props.bid, props.id);
+    const handleCheckboxChange = useCallback(() => toggleTaskCompletion(bid, id), [toggleTaskCompletion, bid, id]);
 
-    const truncateLabel = props.title.length > 10 ? props.title.substring(0, 10) + '...' : props.title;
+    const truncateLabel = useMemo(() => (title.length > 10 ? `${title.substring(0, 10)}...` : title), [title]);
 
-    const subtaskStatuses = props.card.task.length !== 0 ?
-        `${(props.card.task?.filter((item) => item.completed === true)).length} / ${props.card.task.length}`
-        : "0/0"
+    const subtaskStatuses = useMemo(() =>
+        `${card.task.filter(item => item.completed).length} / ${card.task.length || 0}`,
+        [card.task]
+    );
+
     return (
-        <Draggable
-            key={props.id.toString()}
-            draggableId={props.id.toString()}
-            index={props.index}
-        >
+        <Draggable key={id.toString()} draggableId={id.toString()} index={index}>
             {(provided) => (
                 <>
-                    <Modal
-                        isOpen={modalShow}
-                        hasOverlay
-                        onClickOutside={() => setModalShow(false)}
-                        onEsc={() => setModalShow(false)}
-                    >
-                        <CardDetails
-                            updateCard={props.updateCard}
-                            onClose={setModalShow}
-                            card={props.card}
-                            bid={props.bid}
-                            removeCard={props.removeCard}
-                        />
+                    <Modal isOpen={modalShow} hasOverlay onClickOutside={() => setModalShow(false)} onEsc={() => setModalShow(false)}>
+                        <CardDetails updateCard={updateCard} onClose={setModalShow} card={card} bid={bid} removeCard={removeCard} />
                     </Modal>
 
-                    <div
-                        className="custom__card"
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                        ref={provided.innerRef}
-                    >
+                    <div className="custom__card" {...provided.draggableProps} {...provided.dragHandleProps} ref={provided.innerRef}>
                         <div className="card__text">
-                            <Checkbox
-                                className={`${props.card.completed ? "strike-through" : ""}`}
-                                label={truncateLabel}
-                                checked={props.card.completed}
-                                onChange={handleCheckboxChange}
-                            />
-                            <Button
-                                form="round"
-                                iconRight={IconOpenInNew}
-                                onlyIcon
-                                view="clear"
-                                size="s"
-                                onClick={() => setModalShow(true)}
-                            />
+                            <Checkbox className={card.completed ? "strike-through" : ""} label={truncateLabel} checked={card.completed} onChange={handleCheckboxChange} />
+                            <Button form="round" iconRight={IconOpenInNew} onlyIcon view="clear" size="s" onClick={() => setModalShow(true)} />
                         </div>
-                        <div className="card__footer">
-                            {subtaskStatuses}
-                        </div>
+                        <div className="card__footer">{subtaskStatuses}</div>
                         {provided.placeholder}
                     </div>
                 </>
